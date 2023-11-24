@@ -1,7 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
+import { type InferGetServerSidePropsType } from "next";
 import { useRouter } from "next/router";
 import { PdfFocusProvider } from "~/context/pdf";
 
+import { getAccessToken } from "@auth0/nextjs-auth0";
+import { withPageAuthRequired } from "@auth0/nextjs-auth0/client";
 import type { ChangeEvent } from "react";
 import DisplayMultiplePdfs from "~/components/pdf-viewer/DisplayMultiplePdfs";
 import { backendUrl } from "src/config";
@@ -18,7 +21,7 @@ import { useModal } from "~/hooks/utils/useModal";
 import { useIntercom } from "react-use-intercom";
 import useIsMobile from "~/hooks/utils/useIsMobile";
 
-export default function Conversation() {
+const Conversation = ({ token }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const router = useRouter();
   const { id } = router.query;
 
@@ -50,7 +53,7 @@ export default function Conversation() {
 
   useEffect(() => {
     const fetchConversation = async (id: string) => {
-      const result = await backendClient.fetchConversation(id);
+      const result = await backendClient.fetchConversation(id, token || '');
       if (result.messages) {
         setMessages(result.messages);
       }
@@ -218,4 +221,15 @@ export default function Conversation() {
       </div>
     </PdfFocusProvider>
   );
+};
+
+export default withPageAuthRequired(Conversation);
+
+export async function getServerSideProps(context) {
+  try {
+    const { accessToken } = await getAccessToken(context.req, context.res);
+    return { props: { token: accessToken } };
+  } catch (err) {
+    return { props: { token: null } };
+  }
 }

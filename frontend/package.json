@@ -9,6 +9,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@auth0/nextjs-auth0": "^3.3.0",
     "@headlessui/react": "1.7.15",
     "@heroicons/react": "2.0.18",
     "@sentry/nextjs": "^7.57.0",

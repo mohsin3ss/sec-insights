@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 
@@ -21,7 +22,10 @@ import { useIntercom } from "react-use-intercom";
 import { LoadingSpinner } from "~/components/basics/Loading";
 import useIsMobile from "~/hooks/utils/useIsMobile";
 
-export const TitleAndDropdown = () => {
+interface TitleAndDropdownProps {
+  accessToken: string,
+}
+export const TitleAndDropdown: React.FC<TitleAndDropdownProps> = ({ accessToken }) => {
   const router = useRouter();
 
   const { isMobile } = useIsMobile();
@@ -32,7 +36,7 @@ export const TitleAndDropdown = () => {
     event.preventDefault();
     const selectedDocumentIds = selectedDocuments.map((val) => val.id);
     backendClient
-      .createConversation(selectedDocumentIds)
+      .createConversation(selectedDocumentIds, accessToken)
       .then((newConversationId) => {
         setIsLoadingConversation(false);
         router
@@ -62,7 +66,7 @@ export const TitleAndDropdown = () => {
     shouldFocusCompanySelect,
     setShouldFocusCompanySelect,
     sortedSelectedDocuments,
-  } = useDocumentSelector();
+  } = useDocumentSelector(accessToken);
 
   const { boot } = useIntercom();
 
@@ -73,6 +77,13 @@ export const TitleAndDropdown = () => {
   return (
     <div className="landing-page-gradient-1 relative flex h-max w-screen flex-col items-center font-lora ">
       <div className="absolute right-4 top-4">
+        <Link href="/api/auth/logout">
+          <button className="flex items-center justify-center font-nunito text-lg font-bold ">
+            Logout
+          </button>
+        </Link>
+      </div>
+      <div className="absolute right-4 top-12">
         <a href="https://www.llamaindex.ai/" target="_blank">
           <button className="flex items-center justify-center font-nunito text-lg font-bold ">
             Built by LlamaIndex
@@ -157,7 +168,7 @@ export const TitleAndDropdown = () => {
                   getOptionValue={(option: SelectOption) => option.value}
                   onChange={setSelectedYear}
                   value={selectedYear}
-                  placeholder="Select Year"
+                  placeholder="Select Document"
                   components={{
                     IndicatorSeparator: () => null,
                     DropdownIndicator: () => null,

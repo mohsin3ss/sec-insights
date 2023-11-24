@@ -18,7 +18,7 @@ import { backendClient } from "~/api/backend";
 
 export const MAX_NUMBER_OF_SELECTED_DOCUMENTS = 10;
 
-export const useDocumentSelector = () => {
+export const useDocumentSelector = (accessToken: string) => {
   const [availableDocuments, setAvailableDocuments] = useState<SecDocument[]>(
     []
   );
@@ -36,7 +36,7 @@ export const useDocumentSelector = () => {
 
   useEffect(() => {
     async function getDocuments() {
-      const docs = await backendClient.fetchDocuments();
+      const docs = await backendClient.fetchDocuments(accessToken);
       setAvailableDocuments(docs);
     }
     getDocuments().catch(() => console.error("could not fetch documents"));

@@ -87,6 +87,12 @@ class Settings(PreviewPrefixedSettings):
     # "http://localhost:8080", "http://local.dockertoolbox.tiangolo.com"]'
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
 
+    # Auth0 Settings
+    AUTH0_DOMAIN: str
+    AUTH0_API_AUDIENCE: str
+    AUTH0_ISSUER: str
+    AUTH0_ALGORITHMS: str
+
     @property
     def VERBOSE(self) -> bool:
         """
