@@ -112,7 +112,6 @@ export const DocumentSelectCombobox: React.FC<DocumentSelectComboboxProps> = ({
               {...getItemProps({ item, index })}
             >
               <span>{item.fullName}</span>
-              <span className="text-sm ">{item.ticker}</span>
             </li>
           ))}
       </ul>

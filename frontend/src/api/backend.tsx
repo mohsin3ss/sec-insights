@@ -1,7 +1,7 @@
 import { backendUrl } from "~/config";
 import type { Message } from "~/types/conversation";
 import type { BackendDocument } from "~/types/backend/document";
-import { SecDocument } from "~/types/document";
+import { BackendDocumentInterface } from "~/types/document";
 import { fromBackendDocumentToFrontend } from "./utils/documents";
 
 interface CreateConversationPayload {
@@ -16,7 +16,7 @@ interface GetConversationPayload {
 
 interface GetConversationReturnType {
   messages: Message[];
-  documents: SecDocument[];
+  documents: BackendDocumentInterface[];
 }
 
 class BackendClient {
@@ -72,7 +72,7 @@ class BackendClient {
     };
   }
 
-  public async fetchDocuments(accessToken: string): Promise<SecDocument[]> {
+  public async fetchDocuments(accessToken: string): Promise<BackendDocumentInterface[]> {
     const endpoint = `api/document/`;
     const res = await this.get(endpoint, accessToken);
     const data = (await res.json()) as BackendDocument[];

@@ -48,13 +48,13 @@ export const TitleAndDropdown: React.FC<TitleAndDropdownProps> = ({ accessToken 
 
   const {
     availableTickers,
-    availableDocumentTypes,
-    sortedAvailableYears,
+    availableDocumentOptions1,
+    availableDocumentOptions2,
     selectedDocuments,
     selectedTicker,
-    selectedDocumentType,
-    selectedYear,
-    setSelectedYear,
+    selectedDocumentOption1,
+    selectedDocumentOption2,
+    setSelectedOption2,
     handleAddDocument,
     handleRemoveDocument,
     isDocumentSelectionEnabled,
@@ -62,9 +62,9 @@ export const TitleAndDropdown: React.FC<TitleAndDropdownProps> = ({ accessToken 
     yearFocusRef,
     documentTypeFocusRef,
     selectTicker,
-    selectDocumentType,
-    shouldFocusCompanySelect,
-    setShouldFocusCompanySelect,
+    selectDocumentOption1,
+    shouldFocusDepartmentSelect,
+    setShouldFocusDepartmentSelect,
     sortedSelectedDocuments,
   } = useDocumentSelector(accessToken);
 
@@ -124,8 +124,8 @@ export const TitleAndDropdown: React.FC<TitleAndDropdownProps> = ({ accessToken 
                 selectedItem={selectedTicker}
                 setSelectedItem={selectTicker}
                 availableDocuments={availableTickers}
-                shouldFocusTicker={shouldFocusCompanySelect}
-                setFocusState={setShouldFocusCompanySelect}
+                shouldFocusTicker={shouldFocusDepartmentSelect}
+                setFocusState={setShouldFocusDepartmentSelect}
               />
               <div className="flex h-[41px] w-[40px] items-center justify-center bg-[#F7F7F7] pr-3">
                 <span className="mt-1 font-nunito text-[13px] font-bold text-[#7F7F7F]">
@@ -141,11 +141,11 @@ export const TitleAndDropdown: React.FC<TitleAndDropdownProps> = ({ accessToken 
                 <Select
                   openMenuOnFocus
                   ref={documentTypeFocusRef}
-                  options={availableDocumentTypes}
-                  onChange={selectDocumentType}
+                  options={availableDocumentOptions1 || []}
+                  onChange={selectDocumentOption1}
                   getOptionLabel={(option: SelectOption) => option.label}
                   getOptionValue={(option: SelectOption) => option.value}
-                  value={selectedDocumentType}
+                  value={selectedDocumentOption1}
                   placeholder="Select Document Type"
                   components={{
                     IndicatorSeparator: () => null,
@@ -163,11 +163,11 @@ export const TitleAndDropdown: React.FC<TitleAndDropdownProps> = ({ accessToken 
                 <Select
                   openMenuOnFocus
                   ref={yearFocusRef}
-                  options={sortedAvailableYears || []}
+                  options={availableDocumentOptions2 || []}
                   getOptionLabel={(option: SelectOption) => option.label}
                   getOptionValue={(option: SelectOption) => option.value}
-                  onChange={setSelectedYear}
-                  value={selectedYear}
+                  onChange={setSelectedOption2}
+                  value={selectedDocumentOption2}
                   placeholder="Select Document"
                   components={{
                     IndicatorSeparator: () => null,
@@ -181,7 +181,7 @@ export const TitleAndDropdown: React.FC<TitleAndDropdownProps> = ({ accessToken 
               <button
                 className="m-4 rounded border bg-llama-indigo px-8 py-2 text-white hover:bg-[#3B3775] disabled:bg-gray-30"
                 onClick={handleAddDocument}
-                disabled={!isDocumentSelectionEnabled || !selectedYear}
+                disabled={!isDocumentSelectionEnabled || !selectedDocumentOption2}
               >
                 Add
               </button>
@@ -213,13 +213,12 @@ export const TitleAndDropdown: React.FC<TitleAndDropdownProps> = ({ accessToken 
                 )}
               >
                 <div className="w-64 text-left">
-                  <span className="font-bold">{doc.ticker}</span> -{" "}
-                  {doc.fullName}
+                  <span className="font-bold">{doc.ticker}</span>
                 </div>
                 <div className="w-24 text-left">
-                  {doc.year} {doc.quarter && `Q${doc.quarter}`}
+                  {doc.subcategory_1}
                 </div>
-                <div>{doc.docType}</div>
+                <div>{doc.subcategory_2}</div>
                 <button
                   className="mr-4 group-hover:text-[#FF0000]"
                   onClick={() => handleRemoveDocument(index)}

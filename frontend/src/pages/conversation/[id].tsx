@@ -13,7 +13,7 @@ import useMessages from "~/hooks/useMessages";
 import { backendClient } from "~/api/backend";
 import { RenderConversations as RenderConversations } from "~/components/conversations/RenderConversations";
 import { BiArrowBack } from "react-icons/bi";
-import { SecDocument } from "~/types/document";
+import { BackendDocumentInterface } from "~/types/document";
 import { FiShare } from "react-icons/fi";
 import ShareLinkModal from "~/components/modals/ShareLinkModal";
 import { BsArrowUpCircle } from "react-icons/bs";
@@ -38,7 +38,7 @@ const Conversation = ({ token }: InferGetServerSidePropsType<typeof getServerSid
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isMessagePending, setIsMessagePending] = useState(false);
   const [userMessage, setUserMessage] = useState("");
-  const [selectedDocuments, setSelectedDocuments] = useState<SecDocument[]>([]);
+  const [selectedDocuments, setSelectedDocuments] = useState<BackendDocumentInterface[]>([]);
   const { messages, userSendMessage, systemSendMessage, setMessages } =
     useMessages(conversationId || "");
 

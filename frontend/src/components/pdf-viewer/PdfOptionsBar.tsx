@@ -6,11 +6,11 @@ import {
 } from "react-icons/hi2";
 import { PiCaretDownBold, PiCaretUpBold } from "react-icons/pi";
 import { zoomLevels } from "~/hooks/usePdfViewer";
-import { SecDocument } from "~/types/document";
+import { BackendDocumentInterface } from "~/types/document";
 import { borderColors } from "~/utils/colors";
 
 interface PDFOptionsBarProps {
-  file: SecDocument;
+  file: BackendDocumentInterface;
   scrolledIndex: number;
   numPages: number;
   scaleText: string;

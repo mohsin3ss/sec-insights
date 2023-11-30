@@ -1,20 +1,14 @@
 import { DocumentColorEnum } from "~/utils/colors";
 
-export enum DocumentType {
-  TenK = "Form 10K",
-  TenQ = "Form 10Q",
-}
-
 export type Ticker = {
   ticker: string;
   fullName: string;
 };
 
-export interface SecDocument extends Ticker {
+export interface BackendDocumentInterface extends Ticker {
   id: string;
   url: string;
-  year: string;
-  docType: DocumentType;
-  quarter?: string;
+  subcategory_1: string;
+  subcategory_2: string;
   color: DocumentColorEnum;
 }

@@ -1,17 +1,16 @@
 import { useState, useEffect, useRef } from "react";
 import { GroupBase } from "react-select";
 import Select from "react-select/dist/declarations/src/Select";
-import { SecDocument, DocumentType, Ticker } from "~/types/document";
+import { BackendDocumentInterface, Ticker } from "~/types/document";
 import type { SelectOption } from "~/types/selection";
 import {
   findDocumentById,
   getAllTickers,
   sortDocuments,
-  sortSelectOptions,
 } from "~/utils/documents";
 import {
-  documentTypeOptions,
-  getAvailableYears,
+  getAvailableOption1,
+  getAvailableOption2,
 } from "~/utils/landing-page-selection";
 import useLocalStorage from "./utils/useLocalStorage";
 import { backendClient } from "~/api/backend";
@@ -19,52 +18,59 @@ import { backendClient } from "~/api/backend";
 export const MAX_NUMBER_OF_SELECTED_DOCUMENTS = 10;
 
 export const useDocumentSelector = (accessToken: string) => {
-  const [availableDocuments, setAvailableDocuments] = useState<SecDocument[]>(
-    []
+  // Stores all documents returned by backend
+  const [allDocuments, setAllDocuments] = useState<BackendDocumentInterface[]>(
+    [],
   );
-  const [availableTickers, setAvailableTickers] = useState<Ticker[]>([]);
-  const availableDocumentTypes = documentTypeOptions;
-  const [availableYears, setAvailableYears] = useState<SelectOption[] | null>(
-    null
+  // Options for 3 columns that show on the landing page
+  const [availableTickers, setAvailableTickers] = useState<Ticker[]>(
+      [],
   );
-
-  const sortedAvailableYears = sortSelectOptions(availableYears);
+  const [documentOption1, setDocumentOption1] = useState<SelectOption[] | null>(
+    null,
+  );
+  const [documentOption2, setDocumentOption2] = useState<SelectOption[] | null>(
+    null,
+  );
 
   useEffect(() => {
-    setAvailableTickers(getAllTickers(availableDocuments));
-  }, [availableDocuments]);
+    setAvailableTickers(getAllTickers(allDocuments));
+  }, [allDocuments]);
 
   useEffect(() => {
     async function getDocuments() {
       const docs = await backendClient.fetchDocuments(accessToken);
-      setAvailableDocuments(docs);
+      setAllDocuments(docs);
     }
     getDocuments().catch(() => console.error("could not fetch documents"));
   }, []);
 
   const [selectedDocuments, setSelectedDocuments] = useLocalStorage<
-    SecDocument[]
+    BackendDocumentInterface[]
   >("selectedDocuments", []);
   const sortedSelectedDocuments = sortDocuments(selectedDocuments);
 
-  const [selectedTicker, setSelectedTicker] = useState<Ticker | null>(null);
-  const [selectedDocumentType, setSelectedDocumentType] =
+  // Selected values for each dropdown are saved in these respectively
+  const [selectedTicker, setSelectedTicker] =
+    useState<Ticker | null>(null);
+  const [selectedOption1, setSelectedOption1] =
     useState<SelectOption | null>(null);
-  const [selectedYear, setSelectedYear] = useState<SelectOption | null>(null);
+  const [selectedOption2, setSelectedOption2] =
+    useState<SelectOption | null>(null);
 
   const handleAddDocument = () => {
-    if (selectedTicker && selectedDocumentType && selectedYear) {
+    if (selectedTicker && selectedOption1 && selectedOption2) {
       setSelectedDocuments((prevDocs = []) => {
-        if (prevDocs.find((doc) => doc.id === selectedYear.value)) {
+        if (prevDocs.find((doc) => doc.id === selectedOption2.value)) {
           return prevDocs;
         }
-        const newDoc = findDocumentById(selectedYear.value, availableDocuments);
+        const newDoc = findDocumentById(selectedOption2.value, allDocuments);
         return newDoc ? [newDoc, ...prevDocs] : prevDocs;
       });
       setSelectedTicker(null);
-      setSelectedDocumentType(null);
-      setSelectedYear(null);
-      setShouldFocusCompanySelect(true);
+      setSelectedOption1(null);
+      setSelectedOption2(null);
+      setShouldFocusDepartmentSelect(true);
     }
   };
 
@@ -75,25 +81,36 @@ export const useDocumentSelector = (accessToken: string) => {
   };
 
   useEffect(() => {
-    setSelectedDocumentType(null);
-    setSelectedYear(null);
+    setSelectedOption1(null);
+    setSelectedOption2(null);
   }, [selectedTicker]);
 
   useEffect(() => {
-    setSelectedYear(null);
-  }, [selectedDocumentType]);
+    setSelectedOption2(null);
+  }, [selectedOption1]);
 
   useEffect(() => {
-    if (selectedTicker && selectedDocumentType) {
-      setAvailableYears(
-        getAvailableYears(
+    if (selectedTicker && !selectedOption1) {
+      setDocumentOption1(
+        getAvailableOption1(
           selectedTicker?.ticker,
-          selectedDocumentType?.value as DocumentType,
-          availableDocuments
+          allDocuments
         )
       );
     }
-  }, [selectedTicker, selectedDocumentType, availableDocuments]);
+  }, [selectedTicker, selectedOption1, allDocuments]);
+
+  useEffect(() => {
+    if (selectedTicker && selectedOption1) {
+      setDocumentOption2(
+        getAvailableOption2(
+          selectedTicker?.ticker,
+          selectedOption1?.value,
+          allDocuments
+        )
+      );
+    }
+  }, [selectedTicker, selectedOption1, allDocuments]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -104,7 +121,7 @@ export const useDocumentSelector = (accessToken: string) => {
         handleAddDocument();
       }
       if (event.key === "k" && event.metaKey) {
-        setShouldFocusCompanySelect(true);
+        setShouldFocusDepartmentSelect(true);
       }
     };
     document.addEventListener("keydown", handleKeyDown);
@@ -124,11 +141,11 @@ export const useDocumentSelector = (accessToken: string) => {
   };
 
   const selectDocumentType = (docType: SelectOption | null) => {
-    setSelectedDocumentType(docType);
+    setSelectedOption1(docType);
     setFocusYear(true);
   };
 
-  const [shouldFocusCompanySelect, setShouldFocusCompanySelect] =
+  const [shouldFocusDepartmentSelect, setShouldFocusDepartmentSelect] =
     useState(false);
 
   const [focusYear, setFocusYear] = useState(false);
@@ -160,17 +177,16 @@ export const useDocumentSelector = (accessToken: string) => {
   }, [focusDocumentType]);
 
   return {
-    availableDocuments,
+    availableDocuments: allDocuments,
     availableTickers,
-    availableDocumentTypes,
-    availableYears,
-    sortedAvailableYears,
+    availableDocumentOptions1: documentOption1,
+    availableDocumentOptions2: documentOption2,
     selectedDocuments,
     sortedSelectedDocuments,
     selectedTicker,
-    selectedDocumentType,
-    selectedYear,
-    setSelectedYear,
+    selectedDocumentOption1: selectedOption1,
+    selectedDocumentOption2: selectedOption2,
+    setSelectedOption2: setSelectedOption2,
     handleAddDocument,
     handleRemoveDocument,
     isDocumentSelectionEnabled,
@@ -178,8 +194,8 @@ export const useDocumentSelector = (accessToken: string) => {
     yearFocusRef,
     documentTypeFocusRef,
     selectTicker,
-    selectDocumentType,
-    shouldFocusCompanySelect,
-    setShouldFocusCompanySelect,
+    selectDocumentOption1: selectDocumentType,
+    shouldFocusDepartmentSelect,
+    setShouldFocusDepartmentSelect,
   };
 };
