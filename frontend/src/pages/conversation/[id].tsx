@@ -79,7 +79,7 @@ const Conversation = ({ token }: InferGetServerSidePropsType<typeof getServerSid
     setUserMessage("");
 
     const messageEndpoint =
-      backendUrl + `api/conversation/${conversationId}/message`;
+      backendUrl + `api/chat/${conversationId}/message`;
     const url = messageEndpoint + `?user_message=${encodeURI(userMessage)}`;
 
     const events = new EventSource(url);

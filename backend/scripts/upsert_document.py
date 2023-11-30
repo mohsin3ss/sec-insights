@@ -30,10 +30,12 @@ async def upsert_single_document(
         return
 
     metadata_map = {
-        "department_ticker": department_ticker,
-        "department_name": department_name,
-        "subcategory_1": subcategory_1,
-        "subcategory_2": subcategory_2,
+        "document_details": {
+            "department_ticker": department_ticker,
+            "department_name": department_name,
+            "subcategory_1": subcategory_1,
+            "subcategory_2": subcategory_2,
+        }
     }
     doc = Document(url=doc_url, metadata_map=metadata_map)
 

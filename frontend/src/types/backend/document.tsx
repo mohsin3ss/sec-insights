@@ -7,6 +7,10 @@ export interface BackendDocument {
 }
 
 export interface BackendMetadataMap {
+  document_details: DocumentDetails;
+}
+
+export interface DocumentDetails {
   department_ticker: string;
   department_name: string;
   subcategory_1: string;

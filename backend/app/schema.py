@@ -125,6 +125,7 @@ class DocumentMetadataKeysEnum(str, Enum):
     """
 
     SEC_DOCUMENT = "sec_document"
+    DOCUMENT_DETAILS = "document_details"
 
 
 class SecDocumentTypeEnum(str, Enum):
@@ -151,6 +152,16 @@ class SecDocumentMetadata(BaseModel):
     period_of_report_date: Optional[datetime]
     filed_as_of_date: Optional[datetime]
     date_as_of_change: Optional[datetime]
+
+
+class ComplianceDocumentMetadata(BaseModel):
+    """
+    Metadata for a document that is a compliance document
+    """
+    department_ticker: str
+    department_name: str
+    subcategory_1: str
+    subcategory_2: str
 
 
 DocumentMetadataMap = Dict[Union[DocumentMetadataKeysEnum, str], Any]
