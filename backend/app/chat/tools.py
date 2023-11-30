@@ -11,7 +11,7 @@ from polygon.rest.models import StockFinancial
 from app.schema import (
     Document as DocumentSchema,
     DocumentMetadataKeysEnum,
-    SecDocumentMetadata,
+    ComplianceDocumentMetadata,
 )
 from llama_index.tools import FunctionTool, ToolMetadata, QueryEngineTool
 from llama_index.indices.service_context import ServiceContext
@@ -88,8 +88,8 @@ def get_tool_metadata_for_document(doc: DocumentSchema) -> ToolMetadata:
 
 
 def get_polygion_io_sec_tool(document: DocumentSchema) -> FunctionTool:
-    sec_metadata = SecDocumentMetadata.parse_obj(
-        document.metadata_map[DocumentMetadataKeysEnum.SEC_DOCUMENT]
+    compliance_document_metadata = ComplianceDocumentMetadata.parse_obj(
+        document.metadata_map[DocumentMetadataKeysEnum.DOCUMENT_DETAILS]
     )
     tool_metadata = get_tool_metadata_for_document(document)
 
@@ -102,12 +102,7 @@ def get_polygion_io_sec_tool(document: DocumentSchema) -> FunctionTool:
                 max_connections=20,
                 use_async=True,
             )
-            client = cast(AsyncReferenceClient, client)
-            response_dict = await client.get_stock_financials_vx(
-                ticker=sec_metadata.company_ticker,
-                period_of_report_date=str(sec_metadata.period_of_report_date.date()),
-                limit=100,  # max limit is 100
-            )
+            response_dict = {}
             stock_financials = []
             for result_dict in response_dict["results"]:
                 stock_financials.append(StockFinancial.from_dict(result_dict))

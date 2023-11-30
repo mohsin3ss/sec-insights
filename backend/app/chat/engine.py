@@ -41,7 +41,7 @@ from app.schema import (
     Document as DocumentSchema,
     Conversation as ConversationSchema,
     DocumentMetadataKeysEnum,
-    SecDocumentMetadata,
+    ComplianceDocumentMetadata,
 )
 from app.models.db import MessageRoleEnum, MessageStatusEnum
 from app.chat.constants import (
@@ -94,16 +94,13 @@ def fetch_and_read_document(
 
 
 def build_description_for_document(document: DocumentSchema) -> str:
-    if DocumentMetadataKeysEnum.SEC_DOCUMENT in document.metadata_map:
-        sec_metadata = SecDocumentMetadata.parse_obj(
-            document.metadata_map[DocumentMetadataKeysEnum.SEC_DOCUMENT]
+    if DocumentMetadataKeysEnum.DOCUMENT_DETAILS in document.metadata_map:
+        compliance_document_metadata = ComplianceDocumentMetadata.parse_obj(
+            document.metadata_map[DocumentMetadataKeysEnum.DOCUMENT_DETAILS]
         )
-        time_period = (
-            f"{sec_metadata.year} Q{sec_metadata.quarter}"
-            if sec_metadata.quarter
-            else str(sec_metadata.year)
-        )
-        return f"A SEC {sec_metadata.doc_type.value} filing describing the financials of {sec_metadata.company_name} ({sec_metadata.company_ticker}) for the {time_period} time period."
+        return f"A Governance, Risk and Compliance (GRC) document describing the compliance of " \
+               f"{compliance_document_metadata.department_name} department under subcategory of " \
+               f"{compliance_document_metadata.subcategory_1} > {compliance_document_metadata.subcategory_2}"
     return "A document containing useful information that the user pre-selected to discuss with the assistant."
 
 
@@ -213,7 +210,7 @@ def get_tool_service_context(
 ) -> ServiceContext:
     llm = OpenAI(
         temperature=0,
-        model="gpt-4-1106-preview",
+        model="gpt-4",
         streaming=False,
         api_key=settings.OPENAI_API_KEY,
         additional_kwargs={"api_key": settings.OPENAI_API_KEY},
@@ -276,7 +273,7 @@ async def get_chat_engine(
     api_query_engine_tools = [
         get_api_query_engine_tool(doc, service_context)
         for doc in conversation.documents
-        if DocumentMetadataKeysEnum.SEC_DOCUMENT in doc.metadata_map
+        if DocumentMetadataKeysEnum.DOCUMENT_DETAILS in doc.metadata_map
     ]
 
     quantitative_question_engine = SubQuestionQueryEngine.from_defaults(
@@ -293,8 +290,8 @@ async def get_chat_engine(
             metadata=ToolMetadata(
                 name="qualitative_question_engine",
                 description="""
-A query engine that can answer qualitative questions about a set of SEC financial documents that the user pre-selected for the conversation.
-Any questions about company-related headwinds, tailwinds, risks, sentiments, or administrative information should be asked here.
+A query engine that can answer qualitative questions about a set of Governance, Risk and Compliance (GRC) compliance documents that the user pre-selected for the conversation.
+Any questions about Governance, Risk and Compliance (GRC) compliance should be asked here.
 """.strip(),
             ),
         ),
@@ -303,8 +300,8 @@ Any questions about company-related headwinds, tailwinds, risks, sentiments, or 
             metadata=ToolMetadata(
                 name="quantitative_question_engine",
                 description="""
-A query engine that can answer quantitative questions about a set of SEC financial documents that the user pre-selected for the conversation.
-Any questions about company-related financials or other metrics should be asked here.
+A query engine that can answer quantitative questions about a set of Governance, Risk and Compliance (GRC) compliance documents that the user pre-selected for the conversation.
+Any questions about compliance or other metrics should be asked here.
 """.strip(),
             ),
         ),
@@ -312,7 +309,7 @@ Any questions about company-related financials or other metrics should be asked 
 
     chat_llm = OpenAI(
         temperature=0,
-        model="gpt-4-1106-preview",
+        model="gpt-4",
         streaming=True,
         api_key=settings.OPENAI_API_KEY,
         additional_kwargs={"api_key": settings.OPENAI_API_KEY},

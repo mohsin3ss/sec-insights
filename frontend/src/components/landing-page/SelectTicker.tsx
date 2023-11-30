@@ -86,7 +86,7 @@ export const DocumentSelectCombobox: React.FC<DocumentSelectComboboxProps> = ({
             <HiOutlineBuildingOffice2 size={20} />
           </div>
           <input
-            placeholder="Search by company ticker or name"
+            placeholder="Search by GRC Topic"
             className="align-center mt-[5px] w-full p-1.5 focus:outline-none "
             {...getInputProps({ ref: focusRef })}
             style={{ backgroundColor: "#F7F7F7" }}
@@ -112,7 +112,6 @@ export const DocumentSelectCombobox: React.FC<DocumentSelectComboboxProps> = ({
               {...getItemProps({ item, index })}
             >
               <span>{item.fullName}</span>
-              <span className="text-sm ">{item.ticker}</span>
             </li>
           ))}
       </ul>

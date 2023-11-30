@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 
@@ -21,7 +22,10 @@ import { useIntercom } from "react-use-intercom";
 import { LoadingSpinner } from "~/components/basics/Loading";
 import useIsMobile from "~/hooks/utils/useIsMobile";
 
-export const TitleAndDropdown = () => {
+interface TitleAndDropdownProps {
+  accessToken: string,
+}
+export const TitleAndDropdown: React.FC<TitleAndDropdownProps> = ({ accessToken }) => {
   const router = useRouter();
 
   const { isMobile } = useIsMobile();
@@ -32,7 +36,7 @@ export const TitleAndDropdown = () => {
     event.preventDefault();
     const selectedDocumentIds = selectedDocuments.map((val) => val.id);
     backendClient
-      .createConversation(selectedDocumentIds)
+      .createConversation(selectedDocumentIds, accessToken)
       .then((newConversationId) => {
         setIsLoadingConversation(false);
         router
@@ -44,13 +48,13 @@ export const TitleAndDropdown = () => {
 
   const {
     availableTickers,
-    availableDocumentTypes,
-    sortedAvailableYears,
+    availableDocumentOptions1,
+    availableDocumentOptions2,
     selectedDocuments,
     selectedTicker,
-    selectedDocumentType,
-    selectedYear,
-    setSelectedYear,
+    selectedDocumentOption1,
+    selectedDocumentOption2,
+    setSelectedOption2,
     handleAddDocument,
     handleRemoveDocument,
     isDocumentSelectionEnabled,
@@ -58,11 +62,11 @@ export const TitleAndDropdown = () => {
     yearFocusRef,
     documentTypeFocusRef,
     selectTicker,
-    selectDocumentType,
-    shouldFocusCompanySelect,
-    setShouldFocusCompanySelect,
+    selectDocumentOption1,
+    shouldFocusDepartmentSelect,
+    setShouldFocusDepartmentSelect,
     sortedSelectedDocuments,
-  } = useDocumentSelector();
+  } = useDocumentSelector(accessToken);
 
   const { boot } = useIntercom();
 
@@ -73,12 +77,12 @@ export const TitleAndDropdown = () => {
   return (
     <div className="landing-page-gradient-1 relative flex h-max w-screen flex-col items-center font-lora ">
       <div className="absolute right-4 top-4">
-        <a href="https://www.llamaindex.ai/" target="_blank">
+      <Link href="/api/auth/logout">
           <button className="flex items-center justify-center font-nunito text-lg font-bold ">
-            Built by LlamaIndex
+            Logout
             <img src="logo-black.svg" className="mx-2 rounded-lg" width={40} />
           </button>
-        </a>
+        </Link>
       </div>
       <div className="mt-28 flex flex-col items-center">
         <div className="w-4/5 text-center text-4xl">
@@ -113,8 +117,8 @@ export const TitleAndDropdown = () => {
                 selectedItem={selectedTicker}
                 setSelectedItem={selectTicker}
                 availableDocuments={availableTickers}
-                shouldFocusTicker={shouldFocusCompanySelect}
-                setFocusState={setShouldFocusCompanySelect}
+                shouldFocusTicker={shouldFocusDepartmentSelect}
+                setFocusState={setShouldFocusDepartmentSelect}
               />
               <div className="flex h-[41px] w-[40px] items-center justify-center bg-[#F7F7F7] pr-3">
                 <span className="mt-1 font-nunito text-[13px] font-bold text-[#7F7F7F]">
@@ -130,11 +134,11 @@ export const TitleAndDropdown = () => {
                 <Select
                   openMenuOnFocus
                   ref={documentTypeFocusRef}
-                  options={availableDocumentTypes}
-                  onChange={selectDocumentType}
+                  options={availableDocumentOptions1 || []}
+                  onChange={selectDocumentOption1}
                   getOptionLabel={(option: SelectOption) => option.label}
                   getOptionValue={(option: SelectOption) => option.value}
-                  value={selectedDocumentType}
+                  value={selectedDocumentOption1}
                   placeholder="Select Document Type"
                   components={{
                     IndicatorSeparator: () => null,
@@ -152,12 +156,12 @@ export const TitleAndDropdown = () => {
                 <Select
                   openMenuOnFocus
                   ref={yearFocusRef}
-                  options={sortedAvailableYears || []}
+                  options={availableDocumentOptions2 || []}
                   getOptionLabel={(option: SelectOption) => option.label}
                   getOptionValue={(option: SelectOption) => option.value}
-                  onChange={setSelectedYear}
-                  value={selectedYear}
-                  placeholder="Select Year"
+                  onChange={setSelectedOption2}
+                  value={selectedDocumentOption2}
+                  placeholder="Select Document"
                   components={{
                     IndicatorSeparator: () => null,
                     DropdownIndicator: () => null,
@@ -170,7 +174,7 @@ export const TitleAndDropdown = () => {
               <button
                 className="m-4 rounded border bg-llama-indigo px-8 py-2 text-white hover:bg-[#3B3775] disabled:bg-gray-30"
                 onClick={handleAddDocument}
-                disabled={!isDocumentSelectionEnabled || !selectedYear}
+                disabled={!isDocumentSelectionEnabled || !selectedDocumentOption2}
               >
                 Add
               </button>
@@ -202,13 +206,12 @@ export const TitleAndDropdown = () => {
                 )}
               >
                 <div className="w-64 text-left">
-                  <span className="font-bold">{doc.ticker}</span> -{" "}
-                  {doc.fullName}
+                  <span className="font-bold">{doc.ticker}</span>
                 </div>
                 <div className="w-24 text-left">
-                  {doc.year} {doc.quarter && `Q${doc.quarter}`}
+                  {doc.subcategory_1}
                 </div>
-                <div>{doc.docType}</div>
+                <div>{doc.subcategory_2}</div>
                 <button
                   className="mr-4 group-hover:text-[#FF0000]"
                   onClick={() => handleRemoveDocument(index)}

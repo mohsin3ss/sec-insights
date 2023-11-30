@@ -8,7 +8,7 @@ import { HiOutlineChatAlt2 } from "react-icons/hi";
 
 import { usePdfFocus } from "~/context/pdf";
 import { AiFillExclamationCircle, AiOutlineLink } from "react-icons/ai";
-import { SecDocument } from "~/types/document";
+import { BackendDocumentInterface } from "~/types/document";
 import { borderColors } from "~/utils/colors";
 import { formatDisplayDate } from "~/utils/timezone";
 
@@ -52,7 +52,7 @@ interface SubProcessDisplayProps {
   toggleOpen: () => void;
   messageId: string;
   showSpinner: boolean;
-  documents: SecDocument[];
+  documents: BackendDocumentInterface[];
 }
 
 type SubQuestionItem = {
@@ -237,7 +237,7 @@ const ErrorMessageDisplay = () => {
 
 interface AssistantDisplayProps {
   message: Message;
-  documents: SecDocument[];
+  documents: BackendDocumentInterface[];
 }
 const AssistantDisplay: React.FC<AssistantDisplayProps> = ({
   message,
@@ -288,8 +288,7 @@ const AssistantDisplay: React.FC<AssistantDisplayProps> = ({
               </p>
               <p className="flex items-center justify-start p-1 text-xs text-gray-60">
                 This statement is for informational purposes only and does not
-                serve as professional financial advice. Please consult a
-                Certified Public Accountant
+                serve as professional compliance advice.
               </p>
             </div>
           </div>
@@ -301,7 +300,7 @@ const AssistantDisplay: React.FC<AssistantDisplayProps> = ({
 
 interface IRenderConversation {
   messages: Message[];
-  documents: SecDocument[];
+  documents: BackendDocumentInterface[];
   setUserMessage: (str: string) => void;
 }
 
@@ -363,31 +362,31 @@ export const RenderConversations: React.FC<IRenderConversation> = ({
               <HiOutlineChatAlt2 size={40} />
             </div>
             <div className="mb-2 w-3/4 text-center text-lg font-bold">
-              Ask SEC Insights questions about the documents you&apos;ve
+              Ask compliance questions about the documents you&apos;ve
               selected, such as:
             </div>
             <div className="m-auto flex w-full flex-wrap justify-center">
               <button
                 onClick={() =>
-                  setUserMessage("Which company had the highest revenue?")
+                  setUserMessage("What are the penalties for non-compliance in each document?")
                 }
                 className="m-1 flex-shrink rounded-full border border-gray-60 px-3 py-1 hover:bg-gray-15"
               >
-                Which company had the highest revenue?
+                What are the penalties for non-compliance in each document?
               </button>
               <button
                 onClick={() => setUserMessage("What are their main business focus areas?")}
                 className="m-1 flex-shrink rounded-full border border-gray-60 px-3 py-1 hover:bg-gray-15"
               >
-                What are their main business focus areas?
+                What is the main objective of these documents?
               </button>
               <button
                 onClick={() =>
-                  setUserMessage("What are the biggest discussed risks?")
+                  setUserMessage("What are the requirements for privacy notices?")
                 }
                 className="m-1 flex-shrink rounded-full border border-gray-60 px-3 py-1 hover:bg-gray-15"
               >
-                What are the biggest discussed risks?
+                What are the requirements for privacy notices?
               </button>
             </div>
           </div>

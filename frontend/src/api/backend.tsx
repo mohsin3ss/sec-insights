@@ -1,7 +1,7 @@
 import { backendUrl } from "~/config";
 import type { Message } from "~/types/conversation";
 import type { BackendDocument } from "~/types/backend/document";
-import { SecDocument } from "~/types/document";
+import { BackendDocumentInterface } from "~/types/document";
 import { fromBackendDocumentToFrontend } from "./utils/documents";
 
 interface CreateConversationPayload {
@@ -16,13 +16,15 @@ interface GetConversationPayload {
 
 interface GetConversationReturnType {
   messages: Message[];
-  documents: SecDocument[];
+  documents: BackendDocumentInterface[];
 }
 
 class BackendClient {
-  private async get(endpoint: string) {
+  private async get(endpoint: string, accessToken: string) {
     const url = backendUrl + endpoint;
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      headers: { "Authorization": `Bearer ${accessToken}` },
+    });
 
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
@@ -30,11 +32,14 @@ class BackendClient {
     return res;
   }
 
-  private async post(endpoint: string, body?: any) {
+  private async post(endpoint: string, accessToken: string, body?: any) {
     const url = backendUrl + endpoint;
     const res = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${accessToken}`
+      },
       body: JSON.stringify(body),
     });
 
@@ -44,20 +49,21 @@ class BackendClient {
     return res;
   }
 
-  public async createConversation(documentIds: string[]): Promise<string> {
+  public async createConversation(documentIds: string[], accessToken: string): Promise<string> {
     const endpoint = "api/conversation/";
     const payload = { document_ids: documentIds };
-    const res = await this.post(endpoint, payload);
+    const res = await this.post(endpoint, accessToken, payload);
     const data = (await res.json()) as CreateConversationPayload;
 
     return data.id;
   }
 
   public async fetchConversation(
-    id: string
+    id: string,
+    accessToken: string,
   ): Promise<GetConversationReturnType> {
     const endpoint = `api/conversation/${id}`;
-    const res = await this.get(endpoint);
+    const res = await this.get(endpoint, accessToken);
     const data = (await res.json()) as GetConversationPayload;
 
     return {
@@ -66,9 +72,9 @@ class BackendClient {
     };
   }
 
-  public async fetchDocuments(): Promise<SecDocument[]> {
+  public async fetchDocuments(accessToken: string): Promise<BackendDocumentInterface[]> {
     const endpoint = `api/document/`;
-    const res = await this.get(endpoint);
+    const res = await this.get(endpoint, accessToken);
     const data = (await res.json()) as BackendDocument[];
     const docs = fromBackendDocumentToFrontend(data);
     return docs;

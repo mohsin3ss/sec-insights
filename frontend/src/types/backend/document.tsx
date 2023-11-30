@@ -1,8 +1,3 @@
-export enum BackendDocumentType {
-  TenK = "10-K",
-  TenQ = "10-Q",
-}
-
 export interface BackendDocument {
   created_at: string;
   id: string;
@@ -12,13 +7,12 @@ export interface BackendDocument {
 }
 
 export interface BackendMetadataMap {
-  sec_document: BackendSecDocument;
+  document_details: DocumentDetails;
 }
 
-export interface BackendSecDocument {
-  company_name: string;
-  company_ticker: string;
-  doc_type: BackendDocumentType;
-  year: number;
-  quarter: number;
+export interface DocumentDetails {
+  department_ticker: string;
+  department_name: string;
+  subcategory_1: string;
+  subcategory_2: string;
 }
